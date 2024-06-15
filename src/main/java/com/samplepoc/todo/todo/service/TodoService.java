@@ -35,24 +35,36 @@ public class TodoService {
         }
     }
 
-    public boolean updateTodoItem(int todoId, TodoEntity todo) {
+    public TodoEntity updateTodoItem(int todoId, TodoEntity todo) {
         try {
             Optional<TodoEntity> todoOptional = repository.findById(todoId);
             if (todoOptional.isPresent()) {
+                System.out.println("todo patch operation present ....");
                 TodoEntity existingTodo = todoOptional.get();
-                // Update the fields of existingTodo with the fields of todo
-                existingTodo.setDescription(todo.getDescription());
-                existingTodo.setCompletionStatus(todo.isCompletionStatus());
+                // Update the fields of existingTodo with the fields of todo, if todo fields are
+                // present
+                if (todo.getTitle() != null)
+                    existingTodo.setTitle(todo.getTitle());
+                if (todo.getDescription() != null)
+                    existingTodo.setDescription(todo.getDescription());
+
+                Boolean completionStatus = todo.isCompletionStatus();
+                // Code to handle if the return value is not null and is a boolean or Boolean
+                if (completionStatus != null
+                        && (completionStatus instanceof Boolean || completionStatus.getClass() == boolean.class)) {
+                    existingTodo.setCompletionStatus(todo.isCompletionStatus());
+                }
+
                 // Update other fields as needed
-                repository.save(existingTodo);
-                return true;
+                return repository.save(existingTodo);
+                // return true;
             } else {
-                return false;
+                return null;
             }
         } catch (Exception e) {
             // Handle any database-related exceptions here
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

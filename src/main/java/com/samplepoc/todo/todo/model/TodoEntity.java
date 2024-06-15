@@ -25,6 +25,10 @@ public class TodoEntity {
 
     @Column
     @Nonnull
+    private String title;
+
+    @Column
+    @Nonnull
     private String description;
 
     @Column

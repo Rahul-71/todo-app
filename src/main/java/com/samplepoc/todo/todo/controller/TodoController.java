@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,6 +20,7 @@ import com.samplepoc.todo.todo.model.TodoEntity;
 import com.samplepoc.todo.todo.service.TodoService;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/app/")
 public class TodoController {
 
@@ -42,7 +44,7 @@ public class TodoController {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     @GetMapping("/todo/{id}")
     public ResponseEntity<?> getTodoById(@PathVariable Integer id) {
         TodoEntity todo = this.service.getTodoById(id);
@@ -50,12 +52,14 @@ public class TodoController {
         if (todo != null) {
             response = ResponseEntity.ok().body(todo);
         } else {
-            String errorMessage = "Item with id: " + id + " not found";
-            response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+            Map<String, String> responseBody = Map.ofEntries(
+                    Map.entry("status", "false"),
+                    Map.entry("error", "Item with id: " + id + " not found"));
+            response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
         return response;
     }
-    
+
     @PostMapping("/todo")
     public ResponseEntity<?> createTodo(@RequestBody TodoEntity todoRequest) {
         TodoEntity todoItem = this.service.createTodoItem(todoRequest);
@@ -65,30 +69,35 @@ public class TodoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create todo item.");
         }
     }
-    
+
     @PatchMapping("/todos/{id}")
     public ResponseEntity<?> updateTodo(@PathVariable Integer id, @RequestBody TodoEntity todoRequest) {
-        boolean updated = this.service.updateTodoItem(id, todoRequest);
-        if (updated) {
-            return ResponseEntity.ok().body("Todo item updated successfully.");
+        TodoEntity todoItem = this.service.updateTodoItem(id, todoRequest);
+
+        if (todoItem != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(todoItem);
         } else {
-            return ResponseEntity.notFound().build();
+            Map<String, String> response = Map.ofEntries(
+                    Map.entry("status", "false"),
+                    Map.entry("error", "Failed to update todo item with id " + id));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
-    
+
     @DeleteMapping("/todos/{id}")
     public ResponseEntity<?> deleteTodo(@PathVariable Integer id) {
         boolean deleted = this.service.deleteTodoById(id);
         if (deleted) {
             Map<String, String> response = Map.ofEntries(
-                Map.entry("status", "true"),
-                Map.entry("description", "Item with id: " + id + " got deleted successfully.")
-            );
+                    Map.entry("status", "true"),
+                    Map.entry("description", "Item with id: " + id + " got deleted successfully."));
             return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.notFound().build();
+            Map<String, String> response = Map.ofEntries(
+                    Map.entry("status", "false"),
+                    Map.entry("error", "Failed to delete todo item with id " + id));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
-    
 
 }
