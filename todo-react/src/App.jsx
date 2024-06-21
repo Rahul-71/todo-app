@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { FaCheck, FaRegEdit } from "react-icons/fa";
 import Modal from "./Modal";
 
+import { SERVER_URL, SERVER_PORT } from "./util/Constants";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import "./App.css";
+
 
 function App() {
   const [isCompleteScreen, setIsCompleteScreen] = useState(false);
@@ -30,7 +32,7 @@ function App() {
     // Fetch todos from the server and update the state with the fetched todos
     const fetchTodos = async () => {
       try {
-        const response = await fetch("http://localhost:8080/app/todos");
+        const response = await fetch(`https://${SERVER_URL}:${SERVER_PORT}/app/todos`);
 
         // Check if the response is successful
         if (!response.ok) {
@@ -51,7 +53,7 @@ function App() {
   }, []);
 
   const handleAddTodo = async () => {
-    const postURL = "http://localhost:8080/app/todo";
+    const postURL = `https://${SERVER_URL}:${SERVER_PORT}/app/todo`;
     if (!newTitle || !newDesc) {
       return;
     }
@@ -85,7 +87,7 @@ function App() {
   };
 
   const handleDeleteTodo = async (id) => {
-    const deleteURL = `http://localhost:8080/app/todos/${id}`;
+    const deleteURL = `https://${SERVER_URL}:${SERVER_PORT}/app/todos/${id}`;
 
     try {
       const response = await fetch(deleteURL, {
@@ -103,7 +105,7 @@ function App() {
   };
 
   const handleTodoCompletion = async (id) => {
-    const updateURL = `http://localhost:8080/app/todos/${id}`;
+    const updateURL = `https://${SERVER_URL}:${SERVER_PORT}/app/todos/${id}`;
 
     try {
       const response = await fetch(updateURL, {
@@ -132,7 +134,7 @@ function App() {
     console.log("title : " + title);
     console.log("desc : " + description);
 
-    const updateURL = `http://localhost:8080/app/todos/${todoIdUpdate}`;
+    const updateURL = `https://${SERVER_URL}:${SERVER_PORT}/app/todos/${todoIdUpdate}`;
 
     const updateTodo = {
       title: title,
